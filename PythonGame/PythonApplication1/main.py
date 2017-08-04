@@ -3,14 +3,26 @@ import sys
 import os
 import random
 
+weapon = {"Great Sword":40}
 class Player:# base player class
     def __init__(self, name):
         self.name = name    
         self.maxhealth = 100
         self.health = self.maxhealth
-        self.attack = 10
-        self.gold = 0
+        self.base_attack = 10
+        self.gold = 50
         self.potions = 1
+        self.weapon = ["Rusty sword"]
+        self.curweapon = ["Rusty sword"]
+
+    @property
+    def attack(self):
+        attack = self.base_attack
+        if(self.curweapon == "Rusty sword"):
+           attack += 5
+        if(self.curweapon == "Great Sword"):
+           attack += 15
+        return attack
 
 class Goblin:
     def __init__(self, name):
@@ -108,7 +120,41 @@ def fight():
     
 
 def store():
-    pass
+    print("WELCOME TO THE STORE!!!")
+    print("What can I get for ya travler?")
+    print("1.) Weapons")
+    print("2.) Potions")
+    print("3.) Leave Store")
+
+    options = input("->")
+    if(options == "1"):
+        print("What weapon would you like?")
+        print("1. Great Sword")
+        option2 = input("->")
+        if(option2 in weapon):
+            if(PlayerIG.gold >= weapon[option2]):
+                PlayerIG.gold -= weapon[option2]
+                PlayerIG.weapon.append(option2)
+                print("You have purchased a %i" % weapon[option2])
+                store()
+            else:
+                print("You are to poor scrub!")
+                store()
+    elif(options == "2"):
+        if(PlayerIG.gold >= 5):
+            PlayerIG.potions +=1
+            PlayerIG.gold -= 5
+            store()
+        else:
+            print("To poor scrub!")
+
+    elif(options == "3"):
+        start1()
+    else:
+        print("Not a valid choice")
+        store()
+
+
 
 def attack():
  
@@ -136,20 +182,42 @@ def attack():
     
  
 def run():
-    pass
+    rand1 = random.randint(1,3)
+    if(rand1 == 1):
+        print("You got away!")
+        start1()
+    else:
+        print("You failed to get away!")
+        EAttack = random.randint(1, 2)
+    
+    if(EAttack == 2):
+        print("Enemy Missed!!")
+    else:
+        print("Enemy deals %i damage" % (enemy.attack))
+        PlayerIG.health -= enemy.attack
+
+    fight()
+
 def drinkpot():
     if(PlayerIG.potions <= 0):
         print("You have no potions!")
         fight()
     else:
         print("You drink a potion!")
-        PlayerIG.health += 10
+        PlayerIG.health += 50
+        if(PlayerIG.health >= PlayerIG.maxhealth):
+            PlayerIG.health = PlayerIG.maxhealth
         PlayerIG.potions -= 1
         fight()
     pass
 def win():
     print("You WIN")
-    main()
+    enemy.health = enemy.maxhealth
+    PlayerIG.gold += enemy.goldagain
+    PlayerIG.potions +=1
+    print("You gain %i gold and 1 Potion" % enemy.goldagain)
+    start1()
+
 def die():
     print("YOU DIE!")
     main()
