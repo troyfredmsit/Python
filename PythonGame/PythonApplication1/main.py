@@ -2,7 +2,7 @@
 import sys
 import os
 import random
-
+import pickle
 weapon = {"Great Sword":40}
 class Player:# base player class
     def __init__(self, name):
@@ -12,7 +12,7 @@ class Player:# base player class
         self.base_attack = 10
         self.gold = 50
         self.potions = 1
-        self.weapon = ["Rusty sword"]
+        self.weapons = ["Rusty sword"]
         self.curweapon = ["Rusty sword"]
 
     @property
@@ -52,7 +52,15 @@ def main(): # our main function
     if(option == "1"):
         start()
     elif(option == "2"):
-        pass
+        if(os.path.exists("savefile")) == True:
+            with open('savefile', 'rb') as f:
+                global PlayerIG
+                PlayerIG = pickle.load(f)
+                print("Loaded saved state...")
+            start1()
+        else:
+            print("there is no saved games")
+            main()
     elif(option == "3"):
         sys.exit()
     else:
@@ -70,12 +78,15 @@ def start1():
     print("Attack %i" % (PlayerIG.attack))
     print("Health %i" % (PlayerIG.maxhealth))
     print("Gold %i" % (PlayerIG.gold))
-    print("Potions %i\n" % (PlayerIG.potions))
+    print("Potions %i" % (PlayerIG.potions))
+    print("Current weapon : %s " % (PlayerIG.curweapon))
+    
 
     print("1.) Fight")
-    print("2. Store")
+    print("2.) Store")
     print("3.) Save")
     print("4.) Exit")
+    print("5.) Inventory")
 
     option = input("->")
     if(option == "1"):
@@ -83,9 +94,14 @@ def start1():
     elif(option == "2"):
         store()
     elif(option == "3"):
-        pass
+        with open('savefile', 'wb') as f:
+            pickle.dump(PlayerIG, f)
+            print("\n Game has been saved.")
+        start1()
     elif(option == "4"):
         sys.exit
+    elif(option == "5"):
+        inventory()
     else:
         start1()
 
@@ -122,38 +138,40 @@ def fight():
 def store():
     print("WELCOME TO THE STORE!!!")
     print("What can I get for ya travler?")
-    print("1.) Weapons")
-    print("2.) Potions")
-    print("3.) Leave Store")
+    print("1.) Buy Weapons")
+    print("2.) Buy Potions")
+    print("3.) Leave shop")
+
 
     options = input("->")
     if(options == "1"):
-        print("What weapon would you like?")
-        print("1. Great Sword")
-        option2 = input("->")
-        if(option2 in weapon):
-            if(PlayerIG.gold >= weapon[option2]):
-                PlayerIG.gold -= weapon[option2]
-                PlayerIG.weapon.append(option2)
-                print("You have purchased a %i" % weapon[option2])
+        print("What Weapon ye want?")
+        print("1.) Great Sword")
+        options = input("->")
+        if(options == "1"):
+            if(PlayerIG.gold >= 40):
+                PlayerIG.gold -= 40
+                PlayerIG.weapons.append("Great Sword")
+                print("You have bought a Great Sword" )
                 store()
             else:
-                print("You are to poor scrub!")
+                print("Your to poor!")
                 store()
     elif(options == "2"):
-        if(PlayerIG.gold >= 5):
+        if(PlayerIG.gold >= 10):
+            PlayerIG.gold -= 10
             PlayerIG.potions +=1
-            PlayerIG.gold -= 5
+            print("One potion bought you now have %s" %s (PlayerIG.potions))
             store()
         else:
-            print("To poor scrub!")
-
+            print("Your to poor!")
+            store()
     elif(options == "3"):
         start1()
     else:
-        print("Not a valid choice")
-        store()
+        print("Pick a real choice moron")
 
+       
 
 
 def attack():
@@ -221,6 +239,49 @@ def win():
 def die():
     print("YOU DIE!")
     main()
+
+def inventory():
+    print("What do you want to do?")
+    print("1.) Equip")
+    print("2.) Exit")
+    option = input("->")
+    if(option == "1"):
+        equip()
+    elif(option == "2"):
+        start1()
+
+def equip():
+    print("1.) Equip Weapon")
+    print("2.) Exit")
+    option = input("->")
+    if(option == "1"):
+        print("What to equip?")
+        i = 1
+        for weapon in PlayerIG.weapons:
+            print("you have %i weapons in inventory" % len(PlayerIG.weapons))
+            print("Weapon %i is : %s \n" % (i,weapon))
+            i += 1
+        option = int(input("Which weapon to equip?"))
+        option -= 1
+        if(option <= len(PlayerIG.weapons)):
+            if(PlayerIG.curweapon == PlayerIG.weapons[option]):
+                print("That weapon is already equiped.")
+                equip()
+            else:
+
+                PlayerIG.curweapon = PlayerIG.weapons[option]
+                print("You have equiped a %s" % (weapon) )
+                equip()
+        else:
+            print("Bad selection try again ")
+            equip()
+    elif(option == "2"):
+        start1()
+    else:
+        print("Incorrect entry")
+        equip()
+    
+  
 
 # START OF GAME
 
